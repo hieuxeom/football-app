@@ -1,0 +1,1 @@
+export type ResponseCode = 200 | 201 | 202 | 203 | 301 | 400 | 403;
