@@ -4,8 +4,6 @@ import Section from "@/components/Section";
 import {Card, CardHeader, Avatar, CardBody, CardFooter, Button} from "@nextui-org/react";
 
 export default function Home() {
-
-
     const handleSignOut = async () => {
         localStorage.removeItem("userData")
         localStorage.removeItem("jwtToken")
