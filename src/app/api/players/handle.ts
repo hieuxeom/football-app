@@ -27,7 +27,6 @@ export const createNewPlayer = async (email: string, fullName: string, avatar: s
 export const getPlayerInfoById = async (playerId: number | string) => {
     const queryBody: QueryParams = {
 
-
         queryString: "SELECT playerId, fullName, dateOfBirth, email, phoneNumber, socialLink, isActive, createdAt, updatedAt, provider, avatar FROM" +
             " players WHERE playerId = ?",
         values: [playerId],
@@ -59,7 +58,11 @@ export const getAllPlayers = async () => {
     return await query(queryBody);
 };
 
-export const getPlayersOnPage = async (page: number, limit: number) => {
+export const getPlayersOnPage = async (page: string | number, limit: string | number) => {
+
+    page = Number(page);
+    limit = Number(limit);
+
     const queryBody: QueryParams = {
         queryString: `SELECT * FROM players LIMIT ${(page - 1) * limit}, ${limit}`,
     };

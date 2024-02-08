@@ -14,6 +14,7 @@ import {
     isPlayerExists,
 } from "./handle";
 import {IPlayers} from "@/utils/interfaces/players/players";
+import {onlyNumberRegex} from "@/utils/regex";
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
@@ -23,24 +24,41 @@ export async function GET(request: NextRequest) {
 
     const {results: allPlayerData, length: totalRow} = await getAllPlayers();
 
-    if (!page && !playerId) {
-        if (totalRow === 0) {
+    if (playerId) {
+
+        if (onlyNumberRegex.test(playerId)) {
+            return NextResponse.json({
+                status: 400,
+                message: "The value of the `playerId` parameter is invalid"
+            })
+        }
+
+        const {results: playerData, length} = await getPlayerInfoById(playerId);
+
+        if (length === 0) {
             return NextResponse.json({
                 status: 204,
-                message: `Could not find any players to return`,
+                message: `Could not find any player with playerId ${playerId}`,
             });
         }
 
         return NextResponse.json({
             status: 200,
-            message: `Successfully get information of ${totalRow} player(s)`,
-            length: totalRow,
-            data: allPlayerData,
+            message: `Successfully get information of player ${playerId}`,
+            data: playerData,
         });
     }
 
     if (page) {
-        const {results, length} = await getPlayersOnPage(parseInt(page!), parseInt(limit!));
+
+        if (onlyNumberRegex.test(page)) {
+            return NextResponse.json({
+                status: 400,
+                message: "The value of the `page` parameter is invalid"
+            })
+        }
+
+        const {results, length} = await getPlayersOnPage(page, limit!);
 
         if (length === 0) {
             return NextResponse.json({
@@ -63,24 +81,19 @@ export async function GET(request: NextRequest) {
         });
     }
 
-    if (playerId) {
-        const {results: playerData, length} = await getPlayerInfoById(playerId);
-
-        if (length === 0) {
-            return NextResponse.json({
-                status: 204,
-                message: `Could not find any player with playerId ${playerId}`,
-            });
-        }
-
+    if (totalRow === 0) {
         return NextResponse.json({
-            status: 200,
-            message: `Successfully get information of player ${playerId}`,
-            data: playerData,
+            status: 204,
+            message: `Could not find any players to return`,
         });
     }
 
-    return NextResponse.json({status: 200, message: "", data: ""});
+    return NextResponse.json({
+        status: 200,
+        message: `Successfully get information of ${totalRow} player(s)`,
+        length: totalRow,
+        data: allPlayerData,
+    });
 }
 
 export async function POST(request: NextRequest) {
