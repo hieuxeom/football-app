@@ -1,5 +1,14 @@
 import {NextRequest, NextResponse} from "next/server";
-import {createNewTeam, getAllTeams, getTeamInfoById, getTeamsOnPage} from "@/app/api/teams/handle";
+import {
+    createNewTeam,
+    getAllTeams,
+    getTeamInfoById,
+    getTeamsOnPage, isTeamActive,
+    isTeamExist,
+    isTeamOwner,
+    IUpdateTeam, searchTeamsByName,
+    updateTeamInfo, updateTeamStatus
+} from "@/app/api/teams/handle";
 import {onlyNumberRegex} from "@/utils/regex";
 
 export async function GET(request: NextRequest) {
@@ -8,6 +17,17 @@ export async function GET(request: NextRequest) {
     const teamId = searchParams.get('teamId');
     const page = searchParams.get('page');
     const limit = searchParams.get('limit') || process.env.TABLE_PAGINATION_DEFAULT!;
+
+    const search = searchParams.get('search');
+
+    if (search) {
+        const {results: searchData, length} = await searchTeamsByName(search);
+        return NextResponse.json({
+            status: 200,
+            message: `Successfully get ${length} team(s) with matching names`,
+            data: searchData
+        })
+    }
 
     const {results: teamsData, length: totalRow} = await getAllTeams();
 
@@ -94,14 +114,94 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
 
-    const {} = await request.json()
+    const {teamId, teamName, teamLogo, currentId} = await request.json();
 
-    return NextResponse.json({status: 200, message: ""})
+    if (!teamId) {
+        return NextResponse.json({
+            status: 400,
+            message: "Bad request, missing required parameter: `teamId`"
+        })
+    }
+
+    if (!await isTeamExist(teamId)) {
+        return NextResponse.json({
+            status: 204,
+            message: `Could not find any team with teamId ${teamId}`
+        })
+    }
+
+    const requiredFields = [
+        !teamName && "teamName",
+        !teamLogo && "teamLogo",
+        !currentId && "currentId"
+    ].filter(field => field);
+
+    if (requiredFields.length > 0) {
+        return NextResponse.json({
+            status: 400,
+            message: `Bad request, missing required parameter: ${requiredFields.join(", ")}`
+        })
+    }
+
+    if (!await isTeamOwner(teamId, currentId)) {
+        return NextResponse.json({
+            status: 204,
+            message: `Forbidden, you are not allowed to change team info`
+        })
+    }
+
+    const updateData: IUpdateTeam = {
+        teamId,
+        teamName,
+        teamLogo
+    }
+
+    await updateTeamInfo(updateData);
+
+    return NextResponse.json({status: 200, message: `Successfully edit information of team ${teamId}`})
 }
 
 export async function DELETE(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams
 
-    return NextResponse.json({status: 200, message: ""})
+    const teamId = searchParams.get('teamId');
+    const currentId = searchParams.get('currentId');
+
+    const requiredFields = [
+        !teamId && 'teamId',
+        !currentId && 'currentId'
+    ].filter(field => field);
+
+    if (requiredFields.length > 0) {
+        return NextResponse.json({
+            status: 400,
+            message: `Bad request, missing required parameter: ${requiredFields.join(", ")}`
+        })
+    }
+
+    if (!await isTeamExist(teamId!)) {
+        return NextResponse.json({
+            status: 204,
+            message: `Could not find any team with teamId ${teamId}`
+        })
+    }
+
+    if (!await isTeamOwner(teamId!, currentId!)) {
+        return NextResponse.json({
+            status: 204,
+            message: `Forbidden, you are not allowed to change team info`
+        })
+    }
+
+    if (await isTeamActive(teamId!)) {
+        return NextResponse.json({
+            status: 203,
+            message: "This team is currently disabled"
+        })
+    }
+
+    await updateTeamStatus(teamId!, 0);
+
+    return NextResponse.json({status: 200, message: "Successfully disabled this team"})
 }
