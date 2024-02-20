@@ -7,7 +7,7 @@ interface SectionProps {
 
 export default function Section({className, children}: SectionProps) {
     return (
-        <div className={`w-full h-max px-8 py-8 bg-white ${className}`}>
+        <div className={`w-full h-max px-8 py-8 bg-white ${className} `}>
             {children}
         </div>
     )

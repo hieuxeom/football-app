@@ -31,7 +31,7 @@ const styleMapping: Record<TypoVariants, string> = {
     h5: "text-2xl font-medium",
     h6: "text-xl font-medium",
     subheading1: "text-base font-medium",
-    subheading2: "text-sm font-medium",
+    subheading2: "text-sm",
     body: "text-base",
     text: "text-base",
 }

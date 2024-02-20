@@ -17,8 +17,8 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <body>
         <Providers>
             <Container className="min-h-screen flex">
-                <Sidebar className="w-2/12"/>
-                <Section className="min-h-screen h-screen">
+                <Sidebar className="max-w-[20rem] w-max"/>
+                <Section className="min-h-screen h-screen bg-[#f1f1f1]">
                         {children}
                 </Section>
             </Container>
