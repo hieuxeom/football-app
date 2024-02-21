@@ -8,22 +8,18 @@ import React from "react";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Section from "@/components/Section";
 import Container from "@/components/Container";
-import {baseUrl} from "@/utils/requests/baseUrl";
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
-
-    return (
-        <html lang="en" className="light">
-        <body>
-        <Providers>
-            <Container className="min-h-screen flex">
-                <Sidebar className="max-w-[20rem] w-max"/>
-                <Section className="min-h-screen h-screen bg-[#f1f1f1]">
-                        {children}
-                </Section>
-            </Container>
-        </Providers>
-        </body>
-        </html>
-    );
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+	return (
+		<html lang="en" className="light">
+			<body>
+				<Providers>
+					<Container className="min-h-screen flex">
+						<Sidebar className="max-w-[20rem] w-max" />
+						<Section className="min-h-screen h-screen bg-[#f1f1f1]">{children}</Section>
+					</Container>
+				</Providers>
+			</body>
+		</html>
+	);
 }

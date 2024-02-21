@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 
 type TypoVariants = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "subheading1" | "subheading2" | "body" | "text"
-type TypoColors = "primary" | "secondary" | "default" | "success" | "warning" | "danger"
+type TypoColors = "primary" | "secondary" | "default" | "success" | "warning" | "danger" | "white"
 
 interface ITypoProps {
     variant: TypoVariants,
@@ -42,7 +42,8 @@ const colorMapping: Record<TypoColors, string> = {
     primary: "text-primary",
     secondary: "text-secondary",
     success: "text-success",
-    warning: "text-warning"
+    warning: "text-warning",
+    white: "text-white"
 
 }
 export default function Text({
